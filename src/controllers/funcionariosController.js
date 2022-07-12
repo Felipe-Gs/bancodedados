@@ -1,26 +1,10 @@
 const client = require('../config/dbconfig');
 
-async function get_one(req, res){
-    const query = {
-        text: 'SELECT * FROM products WHERE id = $1',
-        values: [req]
-    };
-    try{
-        const data = await client.query(query);
-        return data.rows[0];
-    }catch(e){
-        console.error(e.stack);
-    }
-}
 
 module.exports = {
     async create(req, res){
-        if(!req.body['nome'] || !req.body['valor'] || !req.body['quantidade']){
-            return res.status(400).json({"error": "Preencha todos os campos"});
-        }
-
         const query = {
-            text: 'INSERT INTO products(nome, valor, quantidade) VALUES($1, $2, $3)',
+            text: 'INSERT INTO funcionario(tipofuncionario, nome, login, senha) VALUES($1, $2, $3, $4)',
             values: Object.keys(req.body).map(i=>req.body[i])
         };
 
@@ -35,7 +19,7 @@ module.exports = {
 
     async read(req, res){
         const query = {
-            text: 'SELECT * FROM products'
+            text: 'SELECT * FROM funcionario'
         };
         client
         .query(query)
@@ -49,22 +33,17 @@ module.exports = {
     },
 
     async update(req, res){
-        if(!req.body['nome'] || !req.body['valor'] || !req.body['quantidade']){
-            return res.status(400).json({"error": "Preencha todos os campos"});
-        }
-
         const { id } = req.params;
         let query = {
-            text: 'UPDATE products SET nome = $1, valor = $2, quantidade = $3 WHERE id = $4',
+            text: 'UPDATE funcionario SET tipofuncionario = $1, nome = $2, login = $3, senha = $4, WHERE codFuncionario = $5',
             values: Object.keys(req.body).map(i=>req.body[i])
         };
-        const user = await get_one(id);
-
         query.values.push(id);
+        
         client
         .query(query)
         .then(() => {
-            return res.json(user);
+            return res.status(200);
         })
         .catch(e => {
             console.error(e.stack);
@@ -75,19 +54,19 @@ module.exports = {
     async delete(req, res){
         const { id } = req.params;
         const query = {
-            text: 'DELETE FROM products WHERE id = $1',
+            text: 'DELETE FROM funcionario WHERE codFuncionario = $1',
             values: [id]
         };
-        const user = await get_one(id);
-
+       
         client
         .query(query)
         .then(() => {
-            return res.json(user);
+            return res.status(200);
         })
         .catch(e => {
             console.error(e.stack);
             return res.status(400).json(e.stack);
         });
-    }
+    },
+   
 }
